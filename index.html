@@ -18,13 +18,13 @@
 		<em>Look at console &mdash; things being logged, yo!</em>
 	</p>
 
-	<script type="text/javascript" src="../../vendor/pouchdb/6.2.0/pouchdb-6.2.0.min.js"></script>
+	<script type="text/javascript" src="https://unpkg.com/browse/pouchdb@7.1.1/dist/pouchdb.js"></script>
 	<!--
-		NOTE: When running this in the browser, the Find() plugin will AUTOMATICALLY 
-		inject itself into the PouchDB global object. We don't have to wire this up 
+		NOTE: When running this in the browser, the Find() plugin will AUTOMATICALLY
+		inject itself into the PouchDB global object. We don't have to wire this up
 		explicitly (except when running in node).
 	-->
-	<script type="text/javascript" src="../../vendor/pouchdb/6.2.0/pouchdb.find.js"></script>
+	<script type="text/javascript" src="https://unpkg.com/browse/pouchdb@7.1.1/dist/pouchdb.find.js"></script>
 	<script type="text/javascript">
 
 		var dbName = "javascript-demos-pouchdb-find-playground";
@@ -37,8 +37,8 @@
 		// that we can immediately start to interact with the "db" object.
 		var db = new PouchDB( dbName );
 
-		// When I am playing around with PouchDB, I like to destroy and recreate the 
-		// database on each test run. This way, any conflicts with existing data are 
+		// When I am playing around with PouchDB, I like to destroy and recreate the
+		// database on each test run. This way, any conflicts with existing data are
 		// explicitly coded into the experiment and not a byproduct of dirty data.
 		db.destroy().then(
 			function() {
@@ -50,7 +50,7 @@
 			}
 		)
 
-		// At this point, we have a pristine PouchDB instance to experiment with. Every 
+		// At this point, we have a pristine PouchDB instance to experiment with. Every
 		// PouchDB operation returns a Promise (though you could use a Callback if you
 		// wanted to for some reason). So, to start experimenting, we can just chain the
 		// "thenable" operations together.
@@ -61,9 +61,9 @@
 				// --
 				// NOTE: I am building a "COLLECTION_FRIEND" property into each document.
 				// Normally, I would pick apart the type based solely on the _id format.
-				// However, with the new mango queries, we cannot use the _id format as 
-				// part of the index creation (since the Mango secondary incides are 
-				// based on embedded fields). As such, the COLLECTION_FRIEND property 
+				// However, with the new mango queries, we cannot use the _id format as
+				// part of the index creation (since the Mango secondary incides are
+				// based on embedded fields). As such, the COLLECTION_FRIEND property
 				// will help us create future-proof indices and indices that only include
 				// relevant documents.
 				var promise = db.bulkDocs([
@@ -89,7 +89,7 @@
 						collection_friend: true
 					},
 
-					// Let's add some garbage documents as well in order to ensure that 
+					// Let's add some garbage documents as well in order to ensure that
 					// our subsequent queries don't try to pull back more data that we
 					// anticipate (ie, none of these documents should show up).
 					{
@@ -109,10 +109,10 @@
 			function() {
 
 				// Now that we've inserted our Friends, we can immediately access those
-				// friends using the "default" index (ie, the one implicitly created on 
+				// friends using the "default" index (ie, the one implicitly created on
 				// the _id field).
-				// -- 
-				// CAUTION: This does NOT SEEM TO BE THE CASE with the $in operator. 
+				// --
+				// CAUTION: This does NOT SEEM TO BE THE CASE with the $in operator.
 				// While you might expect this to map directly to the allDocs() "keys"
 				// filter, .find() will warn us that NO INDEX could be found.
 				var promise = db.find({
@@ -156,10 +156,10 @@
 
 				// In addition to being able to search for a set of _id values (or rather
 				// not being able to - SEE CAUTION ABOVE), we can also search for a range
-				// of _id values. 
+				// of _id values.
 				// --
-				// NOTE: This runs without a warning and I assume this maps to the 
-				// .allDocs() "startKey" and "endKey", which is why it's so strange that 
+				// NOTE: This runs without a warning and I assume this maps to the
+				// .allDocs() "startKey" and "endKey", which is why it's so strange that
 				// the $in operator doesn't work.
 				var promise = db.find({
 					selector: {
@@ -194,10 +194,10 @@
 		).then(
 			function() {
 
-				// Using .find(), we can also mix the way data is filtered. For example, 
+				// Using .find(), we can also mix the way data is filtered. For example,
 				// we can mix the primary key index (or any index for that matter), with
 				// in-memory filtering. In this case, we're going to use the primary key
-				// index to select a subset of documents; then, we're going to use 
+				// index to select a subset of documents; then, we're going to use
 				// implicit in-memory filtering to further narrow down documents by age.
 				var promise = db.find({
 					selector: {
@@ -239,10 +239,10 @@
 			function() {
 
 				// Once we want to go past the default _id based index, we have to create
-				// explicit indices. In this case, let's create an index that allows us 
+				// explicit indices. In this case, let's create an index that allows us
 				// to search friends by Interest. When creating an index, mango will only
 				// index documents that contain ALL OF THE KEYS. As such, we can use the
-				// COLLECTION_FRIEND categorization key to ensure that only Friend 
+				// COLLECTION_FRIEND categorization key to ensure that only Friend
 				// documents are included in this index. This also serves to future-proof
 				// the index in case other document types get added later that include a
 				// key called "interests".
@@ -251,15 +251,15 @@
 						fields: [ "collection_friend", "interests" ]
 					}
 				});
-				
+
 				return( promise );
 
 			}
 		).then(
 			function() {
 
-				// Now that we have our index in place, we can find all of the friends 
-				// that like "Movies". Again, we are using the arbitrary "type" field, 
+				// Now that we have our index in place, we can find all of the friends
+				// that like "Movies". Again, we are using the arbitrary "type" field,
 				// "collection_friend" to filter the mono-collection into a meaningful
 				// subset of documents.
 				var promise = db.find({
